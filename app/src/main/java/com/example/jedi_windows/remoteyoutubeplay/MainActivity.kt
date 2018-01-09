@@ -3,6 +3,8 @@ package com.example.jedi_windows.remoteyoutubeplay
 import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.support.v7.app.AppCompatActivity
+import android.support.v7.widget.LinearLayoutManager
+import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
@@ -20,30 +22,22 @@ import java.io.InputStreamReader
 import java.net.HttpURLConnection
 import java.net.URL
 
+/* com.example.jedi_windows.remoteyoutubeplay  F3:D3:D4:78:C0:6C:00:89:AF:62:A3:2A:F0:DE:36:79:91:FC:CE:AC*/
 class MainActivity : AppCompatActivity() {
-    var volume : VolumeInfo  = VolumeInfo(0f,listOf(0f,0f))
+     var volume : VolumeInfo  = VolumeInfo(0f,listOf(0f,0f))
     lateinit var slider:SeekBar
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
+        val lst: MutableList<YoutubeApiVideo> = mutableListOf(YoutubeApiVideo("http://192.168.0.11:8080/https://www.youtube.com/watch?v=1OfoS6u_8N4"),YoutubeApiVideo("http://192.168.0.11:8080/https://www.youtube.com/watch?v=1OfoS6u_8N4"))
 
         fab.setOnClickListener { view ->
             Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                     .setAction("Action", null).show()
         }
 
-        var button  = findViewById<Button>(R.id.button)
-        button.setOnClickListener { view->
-            Fuel.get("http://192.168.0.11:8080/https://www.youtube.com/watch?v=1OfoS6u_8N4").response { request, response, result ->
-               /* println(request)
-                println(response)
-                val (bytes, error) = result
-                if (bytes != null) {
-                    println(bytes)
-                }*/
-            }
-        }
+
 
         slider = findViewById<SeekBar>(R.id.seekBar) as SeekBar
         "http://192.168.0.11:8080/init/getVolumeInfo".httpGet().responseObject(VolumeInfo.Deserializer()){req,res,result->
@@ -83,6 +77,23 @@ class MainActivity : AppCompatActivity() {
             override fun onStopTrackingTouch(p0: SeekBar?) {
             }
         })
+
+
+        var  rv : RecyclerView = findViewById<RecyclerView>(R.id.rv)
+        var llm : LinearLayoutManager = LinearLayoutManager(this)
+        rv.layoutManager = llm
+        var arr = arrayOf<String>( )
+        var adapter = MyAdapter(lst)
+        rv.adapter = adapter
+        var button  = findViewById<Button>(R.id.button)
+
+        button.setOnClickListener { view->
+            //lst.add("1")
+            //adapter.notifyDataSetChanged()
+            lst.add(YoutubeApiVideo("https://www.youtube.com/watch?v=1OfoS6u_8N4"))
+            adapter.notifyDataSetChanged()
+        }
+
 
 
 
