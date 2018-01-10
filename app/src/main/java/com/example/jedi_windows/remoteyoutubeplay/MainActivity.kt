@@ -1,5 +1,6 @@
 package com.example.jedi_windows.remoteyoutubeplay
 
+import android.app.DialogFragment
 import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.support.v7.app.AppCompatActivity
@@ -32,10 +33,6 @@ class MainActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
         val lst: MutableList<YoutubeApiVideo> = mutableListOf(YoutubeApiVideo("http://192.168.0.11:8080/https://www.youtube.com/watch?v=1OfoS6u_8N4"),YoutubeApiVideo("http://192.168.0.11:8080/https://www.youtube.com/watch?v=1OfoS6u_8N4"))
 
-        fab.setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                    .setAction("Action", null).show()
-        }
 
 
 
@@ -99,6 +96,11 @@ class MainActivity : AppCompatActivity() {
             vid.listener=adapter
             lst.add(vid)
             adapter.notifyDataSetChanged()
+        }
+
+        fab.setOnClickListener { view ->
+            var urlDialog : URLDialog = URLDialog()
+            urlDialog.show(fragmentManager,"urlDialog")
         }
 
 
