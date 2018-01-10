@@ -2,6 +2,7 @@ package com.example.jedi_windows.remoteyoutubeplay
 
 import android.support.v7.widget.CardView
 import android.support.v7.widget.RecyclerView
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -20,7 +21,11 @@ import com.squareup.picasso.Picasso
  * Created by Jedi-Windows on 07.01.2018..
  */
 
-class MyAdapter(private val dataSet: MutableList<YoutubeApiVideo>) : RecyclerView.Adapter<MyAdapter.ViewHolder>() {
+class MyAdapter(private val dataSet: MutableList<YoutubeApiVideo>) : RecyclerView.Adapter<MyAdapter.ViewHolder>(),ValueChangeListener {
+    override fun onValueChanged(newValue: String) {
+        Log.d("log","data set changed")
+        this.notifyDataSetChanged()
+    }
 
 
     class ViewHolder(v: View) : RecyclerView.ViewHolder(v) {
@@ -57,7 +62,10 @@ class MyAdapter(private val dataSet: MutableList<YoutubeApiVideo>) : RecyclerVie
         tv.text = this.dataSet[position].title
 
         val imgView = holder.cardview.findViewById<ImageView>(R.id.thumbnail)
-        Picasso.with(imgView.context).load(dataSet[position].thumbnailURL).into(imgView)
+        Log.d("log", "url to load is ${dataSet[position].thumbnailURL} for item in position $position")
+        if (dataSet[position].thumbnailURL !== ""){
+            Picasso.with(holder.cardview.context).load(dataSet[position].thumbnailURL).into(imgView)
+        }
 
     }
 

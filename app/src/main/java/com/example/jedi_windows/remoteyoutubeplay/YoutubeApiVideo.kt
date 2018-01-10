@@ -5,17 +5,23 @@ import com.github.kittinunf.fuel.Fuel
 import com.github.salomonbrys.kotson.*
 import com.google.gson.Gson
 import com.google.gson.JsonObject
+import kotlin.properties.Delegates
 
 /**
  * Created by Jedi-Windows on 08.01.2018..
  */
-
+interface ValueChangeListener{
+    fun onValueChanged(newValue:String)
+}
 class YoutubeApiVideo(val youtubeURL: String) {
     var id: String? = null
-    var thumbnailURL: String? = null
+    var listener:ValueChangeListener? = null
+    var thumbnailURL :String by Delegates.observable(initialValue = "",
+            onChange = {
+        property, oldValue, newValue ->  listener?.onValueChanged(newValue)
+    })
     var title: String? = null
     private val apiURL = "https://www.googleapis.com/youtube/v3/videos"
-
     init {
         val id = getID()
         Fuel.get(apiURL, listOf("id" to id, "part" to "snippet", "key" to "AIzaSyDpO3xPsORhtVpJxxVehpF6gBC6amgUR7I")).responseString { request, response, result ->

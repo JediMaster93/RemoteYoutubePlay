@@ -86,11 +86,18 @@ class MainActivity : AppCompatActivity() {
         var adapter = MyAdapter(lst)
         rv.adapter = adapter
         var button  = findViewById<Button>(R.id.button)
+        for (item in lst){
+            item.listener = adapter
+        }
+
+
 
         button.setOnClickListener { view->
             //lst.add("1")
             //adapter.notifyDataSetChanged()
-            lst.add(YoutubeApiVideo("https://www.youtube.com/watch?v=1OfoS6u_8N4"))
+            val vid = YoutubeApiVideo("https://www.youtube.com/watch?v=1OfoS6u_8N4")
+            vid.listener=adapter
+            lst.add(vid)
             adapter.notifyDataSetChanged()
         }
 
