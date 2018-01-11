@@ -1,6 +1,7 @@
 package com.example.jedi_windows.remoteyoutubeplay
 
 import android.app.DialogFragment
+import android.content.DialogInterface
 import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.support.v7.app.AppCompatActivity
@@ -18,20 +19,24 @@ import com.github.kittinunf.result.getAs
 import com.google.gson.Gson
 
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.dialog_url.*
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.net.HttpURLConnection
 import java.net.URL
 
 /* com.example.jedi_windows.remoteyoutubeplay  F3:D3:D4:78:C0:6C:00:89:AF:62:A3:2A:F0:DE:36:79:91:FC:CE:AC*/
-class MainActivity : AppCompatActivity() {
-     var volume : VolumeInfo  = VolumeInfo(0f,listOf(0f,0f))
+class MainActivity : AppCompatActivity(), URLDialog.urlDialogListener{
+
+    var volume : VolumeInfo  = VolumeInfo(0f,listOf(0f,0f))
     lateinit var slider:SeekBar
+    lateinit var  videos : MutableList<YoutubeApiVideo>
+    lateinit var adapter : MyAdapter
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
-        val lst: MutableList<YoutubeApiVideo> = mutableListOf(YoutubeApiVideo("http://192.168.0.11:8080/https://www.youtube.com/watch?v=1OfoS6u_8N4"),YoutubeApiVideo("http://192.168.0.11:8080/https://www.youtube.com/watch?v=1OfoS6u_8N4"))
+        videos = mutableListOf(YoutubeApiVideo("http://192.168.0.11:8080/https://www.youtube.com/watch?v=1OfoS6u_8N4"),YoutubeApiVideo("http://192.168.0.11:8080/https://www.youtube.com/watch?v=1OfoS6u_8N4"))
 
 
 
@@ -80,10 +85,10 @@ class MainActivity : AppCompatActivity() {
         var llm : LinearLayoutManager = LinearLayoutManager(this)
         rv.layoutManager = llm
         var arr = arrayOf<String>( )
-        var adapter = MyAdapter(lst)
+        adapter = MyAdapter(videos)
         rv.adapter = adapter
         var button  = findViewById<Button>(R.id.button)
-        for (item in lst){
+        for (item in videos){
             item.listener = adapter
         }
 
@@ -94,7 +99,7 @@ class MainActivity : AppCompatActivity() {
             //adapter.notifyDataSetChanged()
             val vid = YoutubeApiVideo("https://www.youtube.com/watch?v=1OfoS6u_8N4")
             vid.listener=adapter
-            lst.add(vid)
+            videos.add(vid)
             adapter.notifyDataSetChanged()
         }
 
@@ -130,4 +135,16 @@ class MainActivity : AppCompatActivity() {
             else -> super.onOptionsItemSelected(item)
         }
     }
+    override fun onPositiveClick(dialog: URLDialog) {
+        Log.d("log","positive event received ${dialog.urlInput.text}")
+        videos.add(YoutubeApiVideo(dialog.urlInput.text.toString(),adapter))
+        adapter.notifyDataSetChanged()
+
+
+    }
+
+    override fun onNegativeClick(dialog: URLDialog) {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
 }

@@ -13,9 +13,8 @@ import kotlin.properties.Delegates
 interface ValueChangeListener{
     fun onValueChanged(newValue:String)
 }
-class YoutubeApiVideo(val youtubeURL: String) {
+class YoutubeApiVideo(val youtubeURL: String, var listener: ValueChangeListener? = null) {
     var id: String? = null
-    var listener:ValueChangeListener? = null
     var thumbnailURL :String by Delegates.observable(initialValue = "",
             onChange = {
         property, oldValue, newValue ->  listener?.onValueChanged(newValue)
