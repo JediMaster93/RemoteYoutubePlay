@@ -32,7 +32,7 @@ class YoutubeApiVideo(val youtubeURL: String, var listener: ValueChangeListener?
                 thumbnailURL = json["items"][0]["snippet"]["thumbnails"]["high"]["url"].toString().trim('\"')
                 Log.d("log", "thumbnail url is $thumbnailURL}")
 
-                title = json["items"][0]["snippet"]["title"].toString()
+                title = json["items"][0]["snippet"]["title"].toString().trim('"')
 
             }
         }

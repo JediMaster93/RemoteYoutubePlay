@@ -87,20 +87,8 @@ class MainActivity : AppCompatActivity(), URLDialog.urlDialogListener{
         var arr = arrayOf<String>( )
         adapter = MyAdapter(videos)
         rv.adapter = adapter
-        var button  = findViewById<Button>(R.id.button)
         for (item in videos){
             item.listener = adapter
-        }
-
-
-
-        button.setOnClickListener { view->
-            //lst.add("1")
-            //adapter.notifyDataSetChanged()
-            val vid = YoutubeApiVideo("https://www.youtube.com/watch?v=1OfoS6u_8N4")
-            vid.listener=adapter
-            videos.add(vid)
-            adapter.notifyDataSetChanged()
         }
 
         fab.setOnClickListener { view ->
