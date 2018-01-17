@@ -23,6 +23,7 @@ android {
 }
 repositories {
     jcenter()
+    mavenCentral()
 }
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
@@ -40,6 +41,9 @@ dependencies {
     compile 'com.android.support:recyclerview-v7:26.1.0'
     compile 'com.squareup.picasso:picasso:2.5.2'
     compile 'com.github.salomonbrys.kotson:kotson:2.5.0'
-
+    compile 'com.hudomju:swipe-to-dismiss-undo:1.0'
+    implementation "com.mikepenz:iconics-core:3.0.0@aar"
+    implementation "com.mikepenz:iconics-views:3.0.0@aar"
+    implementation 'com.mikepenz:google-material-typeface:3.0.1.2.original@aar'
 
 }

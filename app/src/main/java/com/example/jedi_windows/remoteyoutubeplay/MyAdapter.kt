@@ -20,8 +20,21 @@ import com.squareup.picasso.Picasso
 /**
  * Created by Jedi-Windows on 07.01.2018..
  */
+public interface ItemTouchHelperAdapter{
+    fun onItemMove(fromPosition:Int?,toPosition:Int?)
+    fun onItemDismiss(position: Int?)
+}
+class MyAdapter(private val dataSet: MutableList<YoutubeApiVideo>) : RecyclerView.Adapter<MyAdapter.ViewHolder>(),ValueChangeListener,ItemTouchHelperAdapter {
+    override fun onItemMove(fromPosition: Int?, toPosition: Int?) {
+     }
 
-class MyAdapter(private val dataSet: MutableList<YoutubeApiVideo>) : RecyclerView.Adapter<MyAdapter.ViewHolder>(),ValueChangeListener {
+    override fun onItemDismiss(position: Int?) {
+        position?.let {
+            dataSet.removeAt(it)
+            notifyItemRemoved(position)
+        }
+     }
+
     override fun onValueChanged(newValue: String) {
         Log.d("log","data set changed")
         this.notifyDataSetChanged()
