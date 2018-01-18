@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.DialogInterface
 import android.os.Build
 import android.os.Bundle
+import android.support.design.widget.BottomSheetBehavior
 import android.support.design.widget.FloatingActionButton
 import android.support.design.widget.Snackbar
 import android.support.v4.view.LayoutInflaterCompat
@@ -105,7 +106,7 @@ class MainActivity : AppCompatActivity(), URLDialog.urlDialogListener{
         for (item in videos){
             item.listener = adapter
         }
-        var fab = findViewById<FloatingActionButton>(R.id.fab)
+        var fab = findViewById<View>(R.id.fab)
         fab.setOnClickListener { view ->
             var urlDialog : URLDialog = URLDialog()
             urlDialog.show(fragmentManager,"urlDialog")
@@ -115,8 +116,18 @@ class MainActivity : AppCompatActivity(), URLDialog.urlDialogListener{
         var touchHelper = ItemTouchHelper(callback)
         touchHelper.attachToRecyclerView(rv)
 
+        var bottomSheet = findViewById<View>(R.id.bottom_sheet)
+        var bottomSheetBehaviour = BottomSheetBehavior.from(bottomSheet)
+        bottomSheetBehaviour.setBottomSheetCallback(object:BottomSheetBehavior.BottomSheetCallback(){
+            override fun onSlide(bottomSheet: View, slideOffset: Float) {
+                fab.animate().scaleX(1-slideOffset).scaleY(1-slideOffset).setDuration(0).start()
+             }
+
+            override fun onStateChanged(bottomSheet: View, newState: Int) {
+             }
 
 
+        })
 
     }
     private fun normalise(value: Float,min:Float,max:Float) : Float{

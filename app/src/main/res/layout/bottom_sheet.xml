@@ -13,20 +13,35 @@
 
 
     <RelativeLayout
+        android:id="@+id/vol_seeker"
         android:layout_width="match_parent"
         android:layout_height="80dp"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:background="@color/colorPrimary">
+        <View
+            android:id="@+id/view"
+            android:layout_width="50dp"
+            android:layout_height="4dp"
+            android:layout_marginTop="8dp"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:background="@color/colorAccent"
+            android:focusable="false"
+            android:clickable="false"/>
+
+
 
 
 
         <com.mikepenz.iconics.view.IconicsImageView
-            android:layout_width="32dp"
-            android:layout_height="32dp"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
             app:ico_icon="gmd-volume-up"
             android:layout_centerVertical="true"
             android:layout_toLeftOf="@id/seekBar"
             android:layout_toStartOf="@id/seekBar"
-            app:ico_size="32dp"
+            app:iiv_color="@android:color/white"
+            app:ico_size="24dp"
             />
 
         <SeekBar
@@ -36,17 +51,17 @@
             android:layout_height="50dp"
             android:layout_centerVertical="true"
             android:layout_alignParentEnd="true"
+
             />
 
 
     </RelativeLayout>
 
 
-    <TextView
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center"
-        android:text="test2"
-        android:textColor="@android:color/white" />
+          />
 
 </LinearLayout>

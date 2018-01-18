@@ -54,7 +54,7 @@
             <View
                 android:id="@+id/view"
                 android:layout_width="match_parent"
-                android:layout_height="1dp"
+                android:layout_height="1px"
                 android:layout_marginTop="4dp"
                 android:background="#c8bdbdbd"
                 card_view:layout_constraintEnd_toEndOf="parent"
