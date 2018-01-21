@@ -1,6 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-    <CheckBoxPreference
-        android:title="test">
-    </CheckBoxPreference>
+    <PreferenceCategory
+        android:title="Settings">
+        <com.afollestad.materialdialogs.prefs.MaterialEditTextPreference
+            android:inputType="textUri"
+            android:key="@string/preferenceIP"
+            android:persistent="true"
+            android:defaultValue="192.168.0.11"
+            android:title="Computer IP" />
+        <com.afollestad.materialdialogs.prefs.MaterialEditTextPreference
+            android:inputType="number"
+            android:key="@string/preferencePort"
+            android:persistent="true"
+            android:defaultValue="8080"
+            android:title="Computer Port" />
+    </PreferenceCategory>
 </PreferenceScreen>

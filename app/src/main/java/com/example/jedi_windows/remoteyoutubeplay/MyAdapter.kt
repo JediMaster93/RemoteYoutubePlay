@@ -61,6 +61,7 @@ class MyAdapter(private val dataSet: MutableList<YoutubeApiVideo>) : RecyclerVie
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.cardview.setOnClickListener {
+            //todo get the url from shared prefs
             Fuel.get(dataSet[position].youtubeURL).responseString(object : Handler<String> {
                 override fun success(request: Request, response: Response, s: String) {
 

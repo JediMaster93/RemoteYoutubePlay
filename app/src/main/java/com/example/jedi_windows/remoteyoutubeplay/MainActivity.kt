@@ -14,6 +14,7 @@ import android.view.MenuItem
 import android.view.View
 import android.view.WindowManager
 import android.widget.SeekBar
+import com.afollestad.materialdialogs.MaterialDialog
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.httpGet
 import com.github.salomonbrys.kotson.*
@@ -22,7 +23,7 @@ import com.mikepenz.iconics.context.IconicsContextWrapper
 import com.mikepenz.iconics.context.IconicsLayoutInflater
 
 /* com.example.jedi_windows.remoteyoutubeplay  F3:D3:D4:78:C0:6C:00:89:AF:62:A3:2A:F0:DE:36:79:91:FC:CE:AC*/
-class MainActivity : AppCompatActivity(), URLDialog.urlDialogListener{
+class MainActivity : AppCompatActivity(){
 
     var volume : VolumeInfo  = VolumeInfo(0f,listOf(0f,0f))
     lateinit var slider:SeekBar
@@ -30,62 +31,24 @@ class MainActivity : AppCompatActivity(), URLDialog.urlDialogListener{
     lateinit var adapter : MyAdapter
     override fun onCreate(savedInstanceState: Bundle?) {
         LayoutInflaterCompat.setFactory(getLayoutInflater(),  IconicsLayoutInflater(getDelegate()))
-
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         val sharedPrefs = getPreferences(Context.MODE_PRIVATE)
-
-
-        //videos = mutableListOf(YoutubeApiVideo("http://192.168.0.11:8080/https://www.youtube.com/watch?v=1OfoS6u_8N4"),YoutubeApiVideo("http://192.168.0.11:8080/https://www.youtube.com/watch?v=1OfoS6u_8N4"))
-
+        val url = "http://${sharedPrefs.getString(getString(R.string.preferenceIP),"none")}:${sharedPrefs.getString(getString(R.string.preferencePort),"none")}"
+        if ("none" in url){
+            //todo force user to input port and adress somehow.
+        }
 
         window.setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS)
 
-        slider = findViewById<SeekBar>(R.id.seekBar) as SeekBar
-        "http://192.168.0.11:8080/init/getVolumeInfo".httpGet().responseObject(VolumeInfo.Deserializer()){req,res,result->
-
-            val(x,err)  = result
-            if (x != null) {
-                volume = x
-
-            }
-            Log.d("log",result.toString())
-            Log.d("log",volume.toString())
-            Log.d("log",res.toString())
-
-            if (volume != null){
-                slider.max =  100
-                slider.progress = (normalise(volume.MasterVolumeLevel,volume.VolumeRange[0],volume.VolumeRange[1]) * 100f).toInt()
-                Log.d("log", "SliderMax " + slider.max)
-                Log.d("log", "progress " + normalise(volume.MasterVolumeLevel,volume.VolumeRange[0],volume.VolumeRange[1]))
-            }
-
-        }
-        slider.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(p0: SeekBar?, p1: Int, p2: Boolean) {
-
-                val original = normaliseReverse(p1.toFloat()/100f,volume.VolumeRange[0],volume.VolumeRange[1])
-                var jsonString = "{\"VolumeLevel\":$original}"
-                Fuel.post("http://192.168.0.11:8080").body(jsonString).response { request, response, result ->
-                }
-
-                // Fuel.get("http://192.168.0.11:8080/conf/vol/" + original).response { request, response, result ->  }
-            }
-
-            override fun onStartTrackingTouch(p0: SeekBar?) {
-
-            }
-
-            override fun onStopTrackingTouch(p0: SeekBar?) {
-            }
-        })
+        initVolumeSlider()
 
         var videosJson =  sharedPrefs.getString("videos",null)
         videos = mutableListOf<YoutubeApiVideo>()
 
         videosJson?.let {
-            var brokenParse = Gson().fromJson<MutableList<YoutubeApiVideo>>(it)
-            brokenParse.forEach { i-> videos.add(YoutubeApiVideo(i.youtubeURL)) }
+            var urlList  = Gson().fromJson<List<String>>(it)
+            urlList.forEach { i-> videos.add(YoutubeApiVideo(i)) }
         }
 
         var  rv : RecyclerView = findViewById<RecyclerView>(R.id.rv)
@@ -97,9 +60,13 @@ class MainActivity : AppCompatActivity(), URLDialog.urlDialogListener{
         rv.adapter = adapter
         var fab = findViewById<View>(R.id.fab)
         fab.setOnClickListener { view ->
-            var urlDialog : URLDialog = URLDialog()
-            urlDialog.show(fragmentManager,"urlDialog")
-        }
+            MaterialDialog.Builder(this)
+                    .title("Youtube URL")
+                    .input("192.168.0.11","",MaterialDialog.InputCallback { dialog, input ->
+                        videos.add(YoutubeApiVideo(input.toString(),adapter))
+                        adapter.notifyDataSetChanged()
+                    }).show()
+         }
 
         var callback = SimpleItemTouchHelperCallback(adapter)
         var touchHelper = ItemTouchHelper(callback)
@@ -118,6 +85,39 @@ class MainActivity : AppCompatActivity(), URLDialog.urlDialogListener{
 
 
     }
+
+    private fun initVolumeSlider() {
+        slider = findViewById<SeekBar>(R.id.seekBar) as SeekBar
+        "http://192.168.0.11:8080/init/getVolumeInfo".httpGet().responseObject(VolumeInfo.Deserializer()) { req, res, result ->
+            val (x, err) = result
+            if (x != null) {
+                volume = x
+            }
+            if (volume != null) {
+                slider.max = 100
+                slider.progress = (normalise(volume.MasterVolumeLevel, volume.VolumeRange[0], volume.VolumeRange[1]) * 100f).toInt()
+            }
+
+        }
+        slider.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(p0: SeekBar?, p1: Int, p2: Boolean) {
+
+                val original = normaliseReverse(p1.toFloat() / 100f, volume.VolumeRange[0], volume.VolumeRange[1])
+                var jsonString = "{\"VolumeLevel\":$original}"
+                Fuel.post("http://192.168.0.11:8080").body(jsonString).response { request, response, result ->
+                }
+
+                // Fuel.get("http://192.168.0.11:8080/conf/vol/" + original).response { request, response, result ->  }
+            }
+
+            override fun onStartTrackingTouch(p0: SeekBar?) {
+            }
+
+            override fun onStopTrackingTouch(p0: SeekBar?) {
+            }
+        })
+    }
+
     private fun normalise(value: Float,min:Float,max:Float) : Float{
         return (value-min) / (max - min)
     }
@@ -141,20 +141,12 @@ class MainActivity : AppCompatActivity(), URLDialog.urlDialogListener{
             else -> super.onOptionsItemSelected(item)
         }
     }
-    override fun onPositiveClick(dialog: URLDialog) {
-        Log.d("log","positive event received ${dialog.urlInput.text}")
-        videos.add(YoutubeApiVideo(dialog.urlInput.text.toString(),adapter))
-        adapter.notifyDataSetChanged()
-
-
-    }
-
     override fun onPause() {
         super.onPause()
         val sharedPrefs = getPreferences(Context.MODE_PRIVATE)
         with(sharedPrefs.edit()){
             videos.forEach { vid-> vid.listener=null }
-            val str : String = Gson().toJson(videos)
+            val str : String = Gson().toJson(videos.map { it.youtubeURL })
             putString("videos", str)
             commit()
             Log.d("log","sting is ${str} and len is ${str.length}")
@@ -162,9 +154,6 @@ class MainActivity : AppCompatActivity(), URLDialog.urlDialogListener{
 
 
     }
-
-    override fun onNegativeClick(dialog: URLDialog) {
-     }
 
     override fun attachBaseContext(newBase: Context?) {
         super.attachBaseContext(IconicsContextWrapper.wrap(newBase))
