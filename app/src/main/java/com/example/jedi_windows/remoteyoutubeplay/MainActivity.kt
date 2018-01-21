@@ -1,44 +1,25 @@
 package com.example.jedi_windows.remoteyoutubeplay
 
-import android.app.DialogFragment
 import android.content.Context
-import android.content.DialogInterface
-import android.os.Build
 import android.os.Bundle
 import android.support.design.widget.BottomSheetBehavior
-import android.support.design.widget.FloatingActionButton
-import android.support.design.widget.Snackbar
 import android.support.v4.view.LayoutInflaterCompat
-import android.support.v4.view.LayoutInflaterCompat.setFactory2
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.helper.ItemTouchHelper
 import android.util.Log
-import android.view.*
-import android.widget.Button
+import android.view.Menu
+import android.view.MenuItem
+import android.view.View
+import android.view.WindowManager
 import android.widget.SeekBar
-import android.widget.Toast
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.httpGet
-import com.github.kittinunf.result.Result
-import com.github.kittinunf.result.getAs
+import com.github.salomonbrys.kotson.*
 import com.google.gson.Gson
-import com.hudomju.swipe.OnItemClickListener
-import com.hudomju.swipe.SwipeToDismissTouchListener
-import com.hudomju.swipe.SwipeableItemClickListener
-import com.hudomju.swipe.adapter.ListViewAdapter
-import com.hudomju.swipe.adapter.RecyclerViewAdapter
 import com.mikepenz.iconics.context.IconicsContextWrapper
 import com.mikepenz.iconics.context.IconicsLayoutInflater
-import com.mikepenz.iconics.context.IconicsLayoutInflater2
-
-import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.dialog_url.*
-import java.io.BufferedReader
-import java.io.InputStreamReader
-import java.net.HttpURLConnection
-import java.net.URL
 
 /* com.example.jedi_windows.remoteyoutubeplay  F3:D3:D4:78:C0:6C:00:89:AF:62:A3:2A:F0:DE:36:79:91:FC:CE:AC*/
 class MainActivity : AppCompatActivity(), URLDialog.urlDialogListener{
@@ -52,7 +33,10 @@ class MainActivity : AppCompatActivity(), URLDialog.urlDialogListener{
 
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        videos = mutableListOf(YoutubeApiVideo("http://192.168.0.11:8080/https://www.youtube.com/watch?v=1OfoS6u_8N4"),YoutubeApiVideo("http://192.168.0.11:8080/https://www.youtube.com/watch?v=1OfoS6u_8N4"))
+        val sharedPrefs = getPreferences(Context.MODE_PRIVATE)
+
+
+        //videos = mutableListOf(YoutubeApiVideo("http://192.168.0.11:8080/https://www.youtube.com/watch?v=1OfoS6u_8N4"),YoutubeApiVideo("http://192.168.0.11:8080/https://www.youtube.com/watch?v=1OfoS6u_8N4"))
 
 
         window.setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS)
@@ -96,16 +80,21 @@ class MainActivity : AppCompatActivity(), URLDialog.urlDialogListener{
             }
         })
 
+        var videosJson =  sharedPrefs.getString("videos",null)
+        videos = mutableListOf<YoutubeApiVideo>()
+
+        videosJson?.let {
+            var brokenParse = Gson().fromJson<MutableList<YoutubeApiVideo>>(it)
+            brokenParse.forEach { i-> videos.add(YoutubeApiVideo(i.youtubeURL)) }
+        }
 
         var  rv : RecyclerView = findViewById<RecyclerView>(R.id.rv)
         var llm : LinearLayoutManager = LinearLayoutManager(this)
         rv.layoutManager = llm
         var arr = arrayOf<String>( )
         adapter = MyAdapter(videos)
+        videos.forEach { video->video.listener=adapter}
         rv.adapter = adapter
-        for (item in videos){
-            item.listener = adapter
-        }
         var fab = findViewById<View>(R.id.fab)
         fab.setOnClickListener { view ->
             var urlDialog : URLDialog = URLDialog()
@@ -125,9 +114,8 @@ class MainActivity : AppCompatActivity(), URLDialog.urlDialogListener{
 
             override fun onStateChanged(bottomSheet: View, newState: Int) {
              }
-
-
         })
+
 
     }
     private fun normalise(value: Float,min:Float,max:Float) : Float{
@@ -161,9 +149,22 @@ class MainActivity : AppCompatActivity(), URLDialog.urlDialogListener{
 
     }
 
-    override fun onNegativeClick(dialog: URLDialog) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun onPause() {
+        super.onPause()
+        val sharedPrefs = getPreferences(Context.MODE_PRIVATE)
+        with(sharedPrefs.edit()){
+            videos.forEach { vid-> vid.listener=null }
+            val str : String = Gson().toJson(videos)
+            putString("videos", str)
+            commit()
+            Log.d("log","sting is ${str} and len is ${str.length}")
+        }
+
+
     }
+
+    override fun onNegativeClick(dialog: URLDialog) {
+     }
 
     override fun attachBaseContext(newBase: Context?) {
         super.attachBaseContext(IconicsContextWrapper.wrap(newBase))
